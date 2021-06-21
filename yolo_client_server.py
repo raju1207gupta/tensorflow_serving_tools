@@ -51,7 +51,7 @@ def main():
     request = predict_pb2.PredictRequest()
 
     # Specify model name (must be the same as when the TensorFlow serving serving was started)
-    request.model_spec.name = 'yolov4-416'
+    request.model_spec.name = 'yolov4'
 
     # Initalize prediction 
     # Specify signature name (should be the same as specified when exporting model)
