@@ -1,0 +1,28 @@
+tensorflow_model_server --port=8500 --rest_api_port=8501 --model_name=models --model_base_path=models
+  
+ docker cp ${pwd}/tf_serving_models 79cd64b9b96e:models/
+ 
+serving/bazel-bin/tensorflow_serving/model_servers/tensorflow_model_server --port=3000 --rest_api_port=3000 --model_name=faster_rcnn --model_base_path=/models/faster_rcnn &> faster_rcnn &
+ 
+docker run -p 9000:9000 --mount type=bind,source=${pwd}/tf_serving_models/,target=/models/faster_rcnn -e MODEL_NAME=faster_rcnn -t tensorflow/serving
+
+docker cp /tf_serving_models/ tf_serving_cpu:/models/faster_rcnn
+
+docker run -p 8500:8500 --mount type=bind,source=./tf_serving_models/1/,target=/models/faster_rcnn -e MODEL_NAME=faster_rcnn -t tensorflow/serving
+
+
+docker run -t --rm -p 8500:8500 -v "$(pwd)/tf_serving_models/:/models/" tensorflow/serving --model_config_file=/models/models.config --model_config_file_poll_wait_seconds=60
+
+
+model_config_list {
+  config {
+    name: 'faster_rcnn'
+    base_path: '/models/faster_rcnn/'
+    model_platform: 'tensorflow'
+  }
+  config {
+    name: 'mask_rcnn'
+    base_path: '/models/mask_rcnn/'
+    model_platform: 'tensorflow'
+  }
+}
